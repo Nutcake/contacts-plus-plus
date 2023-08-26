@@ -6,6 +6,7 @@ import 'package:contacts_plus_plus/widgets/friends/friend_online_status_indicato
 import 'package:contacts_plus_plus/widgets/messages/message_input_bar.dart';
 import 'package:contacts_plus_plus/widgets/messages/messages_session_header.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'message_bubble.dart';
@@ -58,6 +59,7 @@ class _MessagesListState extends State<MessagesList> with SingleTickerProviderSt
       final cache = mClient.getUserMessageCache(friend.id);
       final sessions = friend.userStatus.activeSessions;
 
+      var theme = Theme.of(context);
       return Scaffold(
         appBar: AppBar(
           title: Row(
@@ -68,15 +70,42 @@ class _MessagesListState extends State<MessagesList> with SingleTickerProviderSt
                 width: 8,
               ),
               Text(friend.username),
-              if (friend.isHeadless)
-                Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: Icon(
-                    Icons.dns,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.onSecondaryContainer.withAlpha(150),
-                  ),
-                ),
+          if (friend.isHeadless)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Icon(
+                Icons.dns,
+                size: 12,
+                color: theme.colorScheme.onSecondaryContainer.withAlpha(150),
+              ),
+            )
+          else if (friend.userStatus.outputDevice == "Screen")
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Icon(
+                Icons.desktop_windows,
+                size: 13,
+                color: theme.colorScheme.onSecondaryContainer.withAlpha(150),
+              ),
+            )
+          else if (friend.userStatus.outputDevice == "VR")
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Icon(
+                MdiIcons.googleCardboard,
+                size: 14,
+                color: theme.colorScheme.onSecondaryContainer.withAlpha(150),
+              ),
+            ),
+          if (friend.id == "U-Neos")
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Icon(
+                MdiIcons.robot,
+                size: 14,
+                color: theme.colorScheme.onSecondaryContainer.withAlpha(150),
+              ),
+            )
             ],
           ),
           actions: [

@@ -12,100 +12,115 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final sClient = ClientHolder.of(context).settingsClient;
     return ListView(
-        children: [
-          const ListSectionHeader(leadingText: "Notifications"),
-          BooleanSettingsTile(
-            title: "Enable Notifications",
-            initialState: !sClient.currentSettings.notificationsDenied.valueOrDefault,
-            onChanged: (value) async =>
-                await sClient.changeSettings(sClient.currentSettings.copyWith(notificationsDenied: !value)),
-          ),
-          const ListSectionHeader(leadingText: "Appearance"),
-          ListTile(
-            trailing: StatefulBuilder(builder: (context, setState) {
-              return DropdownButton<ThemeMode>(
-                items: ThemeMode.values
-                    .map((mode) => DropdownMenuItem<ThemeMode>(
-                          value: mode,
-                          child: Text(
-                            "${toBeginningOfSentenceCase(mode.name)}",
-                          ),
-                        ))
-                    .toList(),
-                value: ThemeMode.values[sClient.currentSettings.themeMode.valueOrDefault],
-                onChanged: (ThemeMode? value) async {
-                  final currentSetting = sClient.currentSettings.themeMode.value;
-                  if (currentSetting != value?.index) {
-                    await sClient.changeSettings(sClient.currentSettings.copyWith(themeMode: value?.index));
+      children: [
+        const ListSectionHeader(leadingText: "Notifications"),
+        BooleanSettingsTile(
+          title: "Enable Notifications",
+          initialState:
+              !sClient.currentSettings.notificationsDenied.valueOrDefault,
+          onChanged: (value) async => await sClient.changeSettings(
+              sClient.currentSettings.copyWith(notificationsDenied: !value)),
+        ),
+        const ListSectionHeader(leadingText: "Appearance"),
+        ListTile(
+          trailing: StatefulBuilder(builder: (context, setState) {
+            return DropdownButton<ThemeMode>(
+              items: ThemeMode.values
+                  .map((mode) => DropdownMenuItem<ThemeMode>(
+                        value: mode,
+                        child: Text(
+                          "${toBeginningOfSentenceCase(mode.name)}",
+                        ),
+                      ))
+                  .toList(),
+              value: ThemeMode
+                  .values[sClient.currentSettings.themeMode.valueOrDefault],
+              onChanged: (ThemeMode? value) async {
+                final currentSetting = sClient.currentSettings.themeMode.value;
+                if (currentSetting != value?.index) {
+                  await sClient.changeSettings(sClient.currentSettings
+                      .copyWith(themeMode: value?.index));
+                  if (context.mounted) {
+                    Phoenix.rebirth(context);
+                  }
+                }
+                setState(() {});
+              },
+            );
+          }),
+          title: const Text("Theme Mode"),
+        ),
+        const ListSectionHeader(leadingText: "Other"),
+        ListTile(
+          trailing: const Icon(Icons.logout),
+          title: const Text("Sign out"),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(
+                  "Are you sure you want to sign out?",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text("No")),
+                  TextButton(
+                    onPressed: () async {
+                      await ClientHolder.of(context).apiClient.logout();
+                    },
+                    child: const Text("Yes"),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        ListTile(
+          trailing: const Icon(Icons.info_outline),
+          title: const Text("About Contacts++"),
+          onTap: () async {
+            showAboutDialog(
+              context: context,
+              applicationVersion: (await PackageInfo.fromPlatform()).version,
+              applicationIcon: InkWell(
+                onTap: () async {
+                  if (!await launchUrl(
+                      Uri.parse(
+                          "https://github.com/reality-exe/contacts-plus-plus"),
+                      mode: LaunchMode.externalApplication)) {
                     if (context.mounted) {
-                      Phoenix.rebirth(context);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("Failed to open link.")));
                     }
                   }
-                  setState(() {});
                 },
-              );
-            }),
-            title: const Text("Theme Mode"),
-          ),
-          const ListSectionHeader(leadingText: "Other"),
-          ListTile(
-            trailing: const Icon(Icons.logout),
-            title: const Text("Sign out"),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text(
-                    "Are you sure you want to sign out?",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("No")),
-                    TextButton(
-                      onPressed: () async {
-                        await ClientHolder.of(context).apiClient.logout();
-                      },
-                      child: const Text("Yes"),
+                child: Container(
+                  margin: const EdgeInsets.all(16),
+                  constraints: const BoxConstraints(maxWidth: 64),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),  
+                      child: Image.asset("assets/images/logo512.png"),
                     ),
-                  ],
                 ),
-              );
-            },
-          ),
-          ListTile(
-            trailing: const Icon(Icons.info_outline),
-            title: const Text("About Contacts++"),
-            onTap: () async {
-              showAboutDialog(
-                context: context,
-                applicationVersion: (await PackageInfo.fromPlatform()).version,
-                applicationIcon: InkWell(
-                  onTap: () async {
-                    if (!await launchUrl(Uri.parse("https://github.com/Nutcake/contacts-plus-plus"),
-                        mode: LaunchMode.externalApplication)) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(content: Text("Failed to open link.")));
-                      }
-                    }
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.all(16),
-                    constraints: const BoxConstraints(maxWidth: 64),
-                    child: Image.asset("assets/images/logo512.png"),
-                  ),
-                ),
-                applicationLegalese: "Created by Nutcake with love <3",
-              );
-            },
-          )
-        ],
-      );
+              ),
+              applicationLegalese:
+                  "Created by Nutcake with love <3\n\nForked by Reality.exe (aka DetectiveBot)",
+            );
+          },
+        )
+      ],
+    );
   }
 }
 
 class ListSectionHeader extends StatelessWidget {
-  const ListSectionHeader({required this.leadingText, this.trailingText, this.showLine = true, super.key});
+  const ListSectionHeader(
+      {required this.leadingText,
+      this.trailingText,
+      this.showLine = true,
+      super.key});
 
   final String leadingText;
   final String? trailingText;
@@ -141,7 +156,11 @@ class ListSectionHeader extends StatelessWidget {
 }
 
 class BooleanSettingsTile extends StatefulWidget {
-  const BooleanSettingsTile({required this.title, required this.initialState, required this.onChanged, super.key});
+  const BooleanSettingsTile(
+      {required this.title,
+      required this.initialState,
+      required this.onChanged,
+      super.key});
 
   final String title;
   final bool initialState;

@@ -9,9 +9,12 @@ import 'package:contacts_plus_plus/widgets/messages/messages_list.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:contacts_plus_plus/widgets/friends/friend_dialog.dart';
 
 class FriendListTile extends StatelessWidget {
-  const FriendListTile({required this.friend, required this.unreads, this.onTap, super.key});
+  const FriendListTile(
+      {required this.friend, required this.unreads, this.onTap, super.key});
 
   final Friend friend;
   final int unreads;
@@ -28,7 +31,8 @@ class FriendListTile extends StatelessWidget {
       trailing: unreads != 0
           ? Text(
               "+$unreads",
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.primary),
             )
           : null,
       title: Row(
@@ -42,7 +46,34 @@ class FriendListTile extends StatelessWidget {
                 size: 12,
                 color: theme.colorScheme.onSecondaryContainer.withAlpha(150),
               ),
+            )
+          else if (friend.userStatus.outputDevice == "Screen")
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Icon(
+                Icons.desktop_windows,
+                size: 13,
+                color: theme.colorScheme.onSecondaryContainer.withAlpha(150),
+              ),
+            )
+          else if (friend.userStatus.outputDevice == "VR")
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Icon(
+                MdiIcons.googleCardboard,
+                size: 14,
+                color: theme.colorScheme.onSecondaryContainer.withAlpha(150),
+              ),
             ),
+          if (friend.id == "U-Neos")
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Icon(
+                MdiIcons.robot,
+                size: 14,
+                color: theme.colorScheme.onSecondaryContainer.withAlpha(150),
+              ),
+            )
         ],
       ),
       subtitle: Row(
@@ -53,7 +84,8 @@ class FriendListTile extends StatelessWidget {
           const SizedBox(
             width: 4,
           ),
-          Text(toBeginningOfSentenceCase(friend.userStatus.onlineStatus.name) ?? "Unknown"),
+          Text(toBeginningOfSentenceCase(friend.userStatus.onlineStatus.name) ??
+              "Unknown"),
           if (!friend.userStatus.currentSession.isNone) ...[
             const Text(" in "),
             Expanded(
@@ -65,6 +97,14 @@ class FriendListTile extends StatelessWidget {
           ]
         ],
       ),
+      onLongPress: () async {
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return FriendDialog(friend: friend,);
+          },
+        );
+      },
       onTap: () async {
         onTap?.call();
         final mClient = Provider.of<MessagingClient>(context, listen: false);
