@@ -1,3 +1,6 @@
+## ! This application is no longer being maintained !
+Check here for a similar messaging client for Resonite instead: https://github.com/Nutcake/ReCon
+
 <img src="https://github.com/Nutcake/contacts-plus-plus/raw/main/assets/images/logo512.png" width="200"/>
 
 # Contacts++
